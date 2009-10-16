@@ -27,6 +27,8 @@ import urllib2
 import sys
 import os
 import json
+import re
+import htmlentitydefs
 
 #translateurl = "http://www.google.com/uds/Gtranslate" # used in the documentation's example code, possibly not meant for general usage
 translateurl = "http://ajax.googleapis.com/ajax/services/language/translate"
@@ -66,6 +68,24 @@ is possible by redirecting stderr to /dev/null, for example
 translate -d de -f story_en.txt 2>/dev/null
 
 The --verbose or -v switch enables verbose output (to stderr)."""
+
+# unescape HTML entities
+def htmlentities_decode(s):
+	def htmlentities_decode_single(e):
+		s = e.group(0)
+		if s[:2] == "&#":
+			try:
+				if s[:3] == "&#x":
+					return unichr(int(text[3:-1], 16))
+				else:
+					return unichr(int(text[2:-1]))
+			except ValueError: pass
+		else:
+			try:
+				s = unichr(htmlentitydefs.name2codepoint[s[1:-1]])
+			except KeyError: pass
+		return s
+	return re.sub("&#?\w+;", htmlentities_decode_single, s)
 
 # get and handle commandline arguments
 verbose = False
@@ -193,7 +213,7 @@ elif response["responseStatus"] == 200:
 	if "detectedSourceLanguage" in response["responseData"]:
 		print >> sys.stderr, "Detected source language: %s" % response["responseData"]["detectedSourceLanguage"]
 	try:
-		print response["responseData"]["translatedText"]
+		print htmlentities_decode(response["responseData"]["translatedText"])
 	except:
 		print >> sys.stderr, "Error printing response to stdout:"
 		print >> sys.stderr, sys.exc_info()
