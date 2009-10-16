@@ -137,15 +137,12 @@ if file is None and sourcetext is None:
 
 # get source text if we don't already have it
 if file is None:
-	if verbose:
-		print >> sys.stderr, "Reading from non-option commandline arguments"
+	if verbose: print >> sys.stderr, "Reading from non-option commandline arguments"
 else:
 	if file == sys.stdin:
-		if verbose:
-			print >> sys.stderr, "Reading from stdin"
+		if verbose: print >> sys.stderr, "Reading from stdin"
 	else:
-		if verbose:
-			print >> sys.stderr, "Reading from file \"%s\"" % file
+		if verbose: print >> sys.stderr, "Reading from file \"%s\"" % file
 		try:
 			fileobject = open(file)
 		except:
@@ -175,8 +172,7 @@ data = [
 	]
 
 # send request to Google
-if verbose:
-	print >> sys.stderr, "Sending data to Google, waiting for response..."
+if verbose: print >> sys.stderr, "Sending data to Google, waiting for response..."
 try:
 	request = urllib2.Request(translateurl)
 	request.add_data(urllib.urlencode(data))
