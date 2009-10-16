@@ -182,10 +182,11 @@ elif response["responseStatus"] == 200:
 	if "detectedSourceLanguage" in response["responseData"]:
 		print >> sys.stderr, "Detected source language: %s" % response["responseData"]["detectedSourceLanguage"]
 	try:
-	    print response["responseData"]["translatedText"]
+		print response["responseData"]["translatedText"]
 	except:
 		print >> sys.stderr, "Error printing response to stdout:"
-	    print >> sys.stderr, sys.exc_info()
+		print >> sys.stderr, sys.exc_info()
+		sys.exit(6)
 	sys.exit(0)
 else:
 	print >> sys.stderr, "Unexpected response:"
