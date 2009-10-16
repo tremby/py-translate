@@ -168,7 +168,8 @@ try:
 	request.add_header("Referer", "http://perigee.tremby.net/utils/translate")
 	response = json.loads(urllib2.urlopen(request).read())
 except:
-	print >> sys.stderr, "Error getting response from Google or parsing response"
+	print >> sys.stderr, "Error getting response from Google or parsing response:"
+	print >> sys.stderr, sys.exc_info()
 	sys.exit(4)
 
 #deal with response
@@ -180,7 +181,11 @@ elif response["responseStatus"] == 200:
 		print >> sys.stderr, "Response details: %s" % response["responseDetails"]
 	if "detectedSourceLanguage" in response["responseData"]:
 		print >> sys.stderr, "Detected source language: %s" % response["responseData"]["detectedSourceLanguage"]
-	print response["responseData"]["translatedText"].encode("utf-8")
+	try:
+	    print response["responseData"]["translatedText"]
+	except:
+		print >> sys.stderr, "Error printing response to stdout:"
+	    print >> sys.stderr, sys.exc_info()
 	sys.exit(0)
 else:
 	print >> sys.stderr, "Unexpected response:"
