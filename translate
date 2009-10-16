@@ -28,7 +28,7 @@ import sys
 import os
 import json
 
-#translateurl = "http://www.google.com/uds/Gtranslate" #used in the documentation's example code, possibly not meant for general usage
+#translateurl = "http://www.google.com/uds/Gtranslate" # used in the documentation's example code, possibly not meant for general usage
 translateurl = "http://ajax.googleapis.com/ajax/services/language/translate"
 
 def usage(stdout = False):
@@ -39,10 +39,15 @@ def usage(stdout = False):
 
 	print >> stream, "Usage: " + os.path.basename(progname) + " [--help|-h]"
 	print >> stream, indent + " [--verbose|-v]"
-	print >> stream, indent + " [-s <source language>] [-d <destination language>]"
-	print >> stream, indent + " [-f <filename>|<text to translate> ...]"
+	print >> stream, indent + " [(--source|-s) <source language>]"
+	print >> stream, indent + " [(--destination|--dest|-d) <destination language>]"
+	print >> stream, indent + " [(--filename|--file|-f) <filename>|<text to translate> ...]"
 	print >> stream, """
-Translate some text from one language to another, giving the result on stdout.
+Translate some text from one language to another, giving the result on standard 
+output.
+
+By default, translate runs as a filter (accepting text to translate on standard 
+input and outputting the result to standard output).
 
 Source language defaults to auto-detection (which can be specified with "-s -") 
 and destination language defaults to English. Languages should be entered as 
@@ -56,9 +61,13 @@ arguments these are instead taken as the source text. If you want to use it this
 way, it's best to give the argument "--" to show that no more options will 
 appear. Alternatively a file can be used as input by using the -f option.
 
-The --verbose or -v switch enables verbose output."""
+All information and error messages go to standard error and so quiet operation 
+is possible by redirecting stderr to /dev/null, for example
+translate -d de -f story_en.txt 2>/dev/null
 
-#get and handle commandline arguments
+The --verbose or -v switch enables verbose output (to stderr)."""
+
+# get and handle commandline arguments
 verbose = False
 langsource = None
 langdest = "en"
@@ -78,7 +87,7 @@ while len(sys.argv):
 		elif arg == "--help" or arg == "-h":
 			usage(True)
 			sys.exit(0)
-		elif arg == "-s":
+		elif arg == "--source" or arg == "-s":
 			try:
 				langsource = sys.argv.pop(0)
 				if langsource == "-":
@@ -86,13 +95,13 @@ while len(sys.argv):
 				continue
 			except:
 				print >> sys.stderr, "Option \"%s\" requires a parameter" % arg
-		elif arg == "-d":
+		elif arg == "--destination" or arg == "--dest" or arg == "-d":
 			try:
 				langdest = sys.argv.pop(0)
 				continue
 			except:
 				print >> sys.stderr, "Option \"%s\" requires a parameter" % arg
-		elif arg == "-f":
+		elif arg == "--filename" or arg == "--file" or arg == "-f":
 			if file is None:
 				try:
 					file = sys.argv.pop(0)
@@ -113,10 +122,12 @@ while len(sys.argv):
 		continue
 	else:
 		print >> sys.stderr, "Unexpected argument \"%s\" since we are reading from a file or stdin" % arg
+
+	# problem with arguments
 	usage()
 	sys.exit(1)
 
-#final error checking and setup
+# final error checking and setup
 if file is not None and sourcetext is not None:
 	print >> sys.stderr, "Unexpected non-option argument since we are reading from a file or stdin"
 	usage()
@@ -124,7 +135,7 @@ if file is not None and sourcetext is not None:
 if file is None and sourcetext is None:
 	file = sys.stdin
 
-#get source text if we don't already have it
+# get source text if we don't already have it
 if file is None:
 	if verbose:
 		print >> sys.stderr, "Reading from non-option commandline arguments"
@@ -148,7 +159,7 @@ else:
 		print >> sys.stderr, "Could not read from file \"%s\"" % file.name
 		sys.exit(3)
 
-#say what we're doing
+# say what we're doing
 if verbose:
 	print >> sys.stderr, "input text:\n-----\n%s\n-----" % sourcetext
 	if langsource is None:
@@ -156,10 +167,14 @@ if verbose:
 	else:
 		print >> sys.stderr, "Translating from %s to %s" % (langsource, langdest)
 
-#collect data together for Google
-data = [("v", "1.0"), ("langpair", (langsource if langsource is not None else "") + "|" + langdest), ("q", sourcetext)]
+# collect data together for Google
+data = [
+		("v", "1.0"),
+		("langpair", (langsource if langsource is not None else "") + "|" + langdest),
+		("q", sourcetext)
+	]
 
-#send request to Google
+# send request to Google
 if verbose:
 	print >> sys.stderr, "Sending data to Google, waiting for response..."
 try:
@@ -172,7 +187,7 @@ except:
 	print >> sys.stderr, sys.exc_info()
 	sys.exit(4)
 
-#deal with response
+# deal with response
 if response["responseStatus"] == 400:
 	print >> sys.stderr, "Translation failed: %s" % response["responseDetails"]
 	sys.exit(5)
@@ -192,3 +207,5 @@ else:
 	print >> sys.stderr, "Unexpected response:"
 	print >> sys.stderr, response
 	sys.exit(128)
+
+# vi: set ts=4 sts=4 sw=4 tw=80
