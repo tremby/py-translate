@@ -26,9 +26,15 @@ import urllib
 import urllib2
 import sys
 import os
-import json
 import re
 import htmlentitydefs
+import json
+
+# json decoding function -- if Python < 2.6 assume python-json
+if sys.version_info >= (2, 6):
+	jsondecode = json.loads
+else:
+	jsondecode = json.read
 
 #translateurl = "http://www.google.com/uds/Gtranslate" # used in the documentation's example code, possibly not meant for general usage
 translateurl = "http://ajax.googleapis.com/ajax/services/language/translate"
@@ -197,7 +203,7 @@ try:
 	request = urllib2.Request(translateurl)
 	request.add_data(urllib.urlencode(data))
 	request.add_header("Referer", "http://perigee.tremby.net/utils/translate")
-	response = json.loads(urllib2.urlopen(request).read())
+	response = jsondecode(urllib2.urlopen(request).read())
 except:
 	print >> sys.stderr, "Error getting response from Google or parsing response:"
 	print >> sys.stderr, sys.exc_info()
