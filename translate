@@ -82,9 +82,9 @@ def htmlentities_decode(s):
 		if s[:2] == "&#":
 			try:
 				if s[:3] == "&#x":
-					return unichr(int(text[3:-1], 16))
+					return unichr(int(s[3:-1], 16))
 				else:
-					return unichr(int(text[2:-1]))
+					return unichr(int(s[2:-1]))
 			except ValueError: pass
 		else:
 			try:
