@@ -63,6 +63,10 @@ language codes, for instance en, de, es. Inspect http://translate.google.com for
 a full list of supported languages. If auto-detection is used, the language 
 detected will be shown on stderr.
 
+You can set the environment variable "TRANSLATE_DEST_LANG" to your preferred
+destination language to omit the "-d" parameter. For example (bash):
+export TRANSLATE_DEST_LANG=de
+
 If there are no non-option arguments the text to translate is taken from stdin 
 by default (which is the same as giving "-f -"). If there are non-option 
 arguments these are instead taken as the source text. If you want to use it this 
