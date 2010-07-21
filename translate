@@ -101,6 +101,9 @@ nomoreoptions = False
 sourcetext = None
 file = None
 progname = sys.argv.pop(0)
+envlangdest = os.getenv("TRANSLATE_DEST_LANG")
+if envlangdest is not None:
+	langdest = envlangdest
 while len(sys.argv):
 	arg = sys.argv.pop(0)
 	if arg == "--":
