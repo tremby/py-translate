@@ -225,8 +225,11 @@ elif response["responseStatus"] == 200:
 		print >> sys.stderr, "Response details: %s" % response["responseDetails"]
 	if "detectedSourceLanguage" in response["responseData"]:
 		print >> sys.stderr, "Detected source language: %s" % response["responseData"]["detectedSourceLanguage"]
+	decodedresponse = htmlentities_decode(response["responseData"]["translatedText"])
 	try:
-		print htmlentities_decode(response["responseData"]["translatedText"])
+		print decodedresponse
+	except UnicodeEncodeError:
+		print decodedresponse.encode("UTF-8")
 	except:
 		print >> sys.stderr, "Error printing response to stdout:"
 		print >> sys.stderr, sys.exc_info()
