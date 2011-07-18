@@ -49,6 +49,7 @@ def usage(stdout = False):
 	print >> stream, indent + " [--verbose|-v]"
 	print >> stream, indent + " [(--source|-s) <source language>]"
 	print >> stream, indent + " [(--destination|--dest|-d) <destination language>]"
+	print >> stream, indent + " [(--preserve-newlines|-p)]"
 	print >> stream, indent + " [(--filename|--file|-f) <filename>|<text to translate> ...]"
 	print >> stream, """
 Translate some text from one language to another, giving the result on standard 
@@ -72,6 +73,8 @@ by default (which is the same as giving "-f -"). If there are non-option
 arguments these are instead taken as the source text. If you want to use it this 
 way, it's best to give the argument "--" to show that no more options will 
 appear. Alternatively a file can be used as input by using the -f option.
+
+The --preserve-newlines or -p switch can be given to preserve newlines.
 
 All information and error messages go to standard error and so quiet operation 
 is possible by redirecting stderr to /dev/null, for example
@@ -99,6 +102,7 @@ def htmlentities_decode(s):
 
 # get and handle commandline arguments
 verbose = False
+preservenewlines = False
 langsource = None
 langdest = "en"
 nomoreoptions = False
@@ -145,6 +149,9 @@ while len(sys.argv):
 					print >> sys.stderr, "Option \"%s\" requires a parameter" % arg
 			else:
 				print >> sys.stderr, "Duplicate file argument"
+		elif arg == "--preserve-newlines" or arg == "-p":
+			preservenewlines = True
+			continue
 		else:
 			print >> sys.stderr, "Unknown option \"%s\"" % arg
 	elif file is None:
@@ -189,6 +196,11 @@ else:
 		print >> sys.stderr, "Could not read from file \"%s\"" % file.name
 		sys.exit(3)
 
+# knock off trailing newline if we're preserving them -- Google adds one
+if preservenewlines:
+	if sourcetext[-1:] == "\n":
+		sourcetext = sourcetext[0:-1]
+
 # say what we're doing
 if verbose:
 	print >> sys.stderr, "input text:\n-----\n%s\n-----" % sourcetext
@@ -203,6 +215,8 @@ data = [
 		("langpair", (langsource if langsource is not None else "") + "|" + langdest),
 		("q", sourcetext)
 	]
+if preservenewlines:
+	data.append(("format", "text"))
 
 # send request to Google
 if verbose: print >> sys.stderr, "Sending data to Google, waiting for response..."
