@@ -1,2 +1,9 @@
+This program is no longer useful since Google's Translate API version 1 is no 
+longer available. Version 2 of the API is not free of charge so I have no 
+interest in updating this script to work with it. If that interests you, go 
+right ahead and fork this.
+
+---
+
 See the comments at the top of the translate file, and the usage function for 
 usage instructions.
